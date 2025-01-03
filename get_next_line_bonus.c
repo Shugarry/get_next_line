@@ -6,7 +6,7 @@
 /*   By: frey-gal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 17:04:20 by frey-gal          #+#    #+#             */
-/*   Updated: 2025/01/03 22:20:42 by frey-gal         ###   ########.fr       */
+/*   Updated: 2025/01/03 22:30:45 by frey-gal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,18 +52,6 @@ char	*butter(char *stash, char *buf)
 	return (tmp);
 }
 
-char	*free_buddy_boy(char **str, char **str2)
-{
-	if (str)
-		free(str);
-	if (str2 && *str2)
-	{
-		free(*str2);
-		*str2 = NULL;
-	}
-	return (NULL);
-}
-
 char	*get_next_line(int fd)
 {
 	static char	*stash[FOPEN_MAX];
@@ -71,9 +59,11 @@ char	*get_next_line(int fd)
 	char		*buf;
 	char		*next_line;
 
+	if (fd < 0 || fd >= FOPEN_MAX || BUFFER_SIZE <= 0)
+		return (NULL);
 	buf = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
-	if (!buf || fd < 0 || fd >= FOPEN_MAX || BUFFER_SIZE <= 0)
-		return (free_buddy_boy(stash, &buf));
+	if (!buf)
+		return (free_buddy(&stash[fd], &buf));
 	while (!find_nl(stash[fd]))
 	{
 		b_read = read(fd, buf, BUFFER_SIZE);
