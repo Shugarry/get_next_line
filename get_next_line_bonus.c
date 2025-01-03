@@ -6,7 +6,7 @@
 /*   By: frey-gal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 17:04:20 by frey-gal          #+#    #+#             */
-/*   Updated: 2025/01/03 22:08:31 by frey-gal         ###   ########.fr       */
+/*   Updated: 2025/01/03 22:10:32 by frey-gal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ char	*get_next_line(int fd)
 
 	buf = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buf || fd < 0 || fd >= FOPEN_MAX || BUFFER_SIZE <= 0)
-		return (free_buddy(&(stash[fd]), &buf));
+		return (free_buddy(NULL, &buf));
 	while (!find_nl(stash[fd]))
 	{
 		b_read = read(fd, buf, BUFFER_SIZE);
