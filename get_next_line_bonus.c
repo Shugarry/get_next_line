@@ -6,7 +6,7 @@
 /*   By: frey-gal <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 17:04:20 by frey-gal          #+#    #+#             */
-/*   Updated: 2025/01/03 22:30:45 by frey-gal         ###   ########.fr       */
+/*   Updated: 2025/01/03 22:53:07 by frey-gal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,10 +52,28 @@ char	*butter(char *stash, char *buf)
 	return (tmp);
 }
 
+int	filler(char **stash, int fd, char *buf)
+{
+	int	b_read;
+
+	while (!find_nl(stash[fd]))
+	{
+		b_read = read(fd, buf, BUFFER_SIZE);
+		if (b_read < 0)
+			return (0);
+		buf[b_read] = '\0';
+		if (b_read == 0)
+			break ;
+		stash[fd] = join_free(stash[fd], buf);
+		if (!stash[fd])
+			return (0);
+	}
+	return (1);
+}
+
 char	*get_next_line(int fd)
 {
 	static char	*stash[FOPEN_MAX];
-	int			b_read;
 	char		*buf;
 	char		*next_line;
 
@@ -64,21 +82,11 @@ char	*get_next_line(int fd)
 	buf = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buf)
 		return (free_buddy(&stash[fd], &buf));
-	while (!find_nl(stash[fd]))
-	{
-		b_read = read(fd, buf, BUFFER_SIZE);
-		if (b_read < 0)
-			return (free_buddy(&(stash[fd]), &buf));
-		buf[b_read] = '\0';
-		if (b_read == 0)
-			break ;
-		stash[fd] = join_free(stash[fd], buf);
-		if (!stash[fd])
-			return (free_buddy(&(stash[fd]), &buf));
-	}
+	if (!filler(stash, fd, buf))
+		return (free_buddy(&(stash[fd]), &buf));
 	next_line = butter(stash[fd], buf);
 	stash[fd] = cut(stash[fd], length(next_line, '\0'));
-	if ((!stash[fd] || !next_line) || (!stash[fd] && !b_read))
+	if ((!stash[fd] || !next_line) || (!stash[fd] && !buf[0]))
 		return (free_buddy(&(stash[fd]), &next_line));
 	return (next_line);
 }
